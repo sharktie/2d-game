@@ -1,0 +1,133 @@
+export default class IntroScreen extends Phaser.Scene {
+  constructor() {
+    super('IntroScreen');
+  }
+
+  create() {
+    const { width, height } = this.scale;
+
+    this.state = "asking";
+    this.playerName = "";
+    this.maxLength = 12;
+
+   
+    this.text = this.add.text(width / 2, height / 2, '', {
+      fontSize: '28px',
+      color: '#ffffff',
+      align: 'center',
+      wordWrap: { width: 600 }
+    }).setOrigin(0.5);
+
+    // =========================
+    // CURSOR BLINK
+    // =========================
+    this.cursorVisible = true;
+
+    this.time.addEvent({
+      delay: 500,
+      loop: true,
+      callback: () => {
+        this.cursorVisible = !this.cursorVisible;
+        this.updateDisplay();
+      }
+    });
+
+   
+    this.fullText = "Hello... what is your name?";             //intro text
+    this.currentText = "";
+    this.index = 0;
+
+    this.time.addEvent({
+      delay: 50,
+      repeat: this.fullText.length - 1,
+      callback: () => {
+        this.currentText += this.fullText[this.index];              //letter by letter
+        this.index++;
+        this.updateDisplay();
+
+        if (this.index === this.fullText.length) {
+          this.state = "typingName";
+        }
+      }
+    });
+
+    // =========================
+    // KEYBOARD INPUT
+    // =========================
+    this.input.keyboard.on('keydown', (event) => {
+      if (this.state !== "typingName") return;
+
+      // BACKSPACE
+      if (event.key === "Backspace") {
+        this.playerName = this.playerName.slice(0, -1);
+      }
+
+      // ENTER → confirm
+      else if (event.key === "Enter") {
+        this.startGreeting();
+      }
+
+      // LETTER INPUT ONLY
+      else if (event.key.length === 1) {
+        const char = event.key;
+
+        // 🧼 validation: letters only + limit
+        if (/^[a-zA-Z]$/.test(char) && this.playerName.length < this.maxLength) {
+          this.playerName += char;
+
+          // 🔊 typing sound (optional asset needed)
+          if (this.sound.get('type')) {
+            this.sound.play('type', { volume: 0.2 });
+          }
+
+          this.updateDisplay();
+        }
+      }
+    });
+  }
+
+  // =========================
+  // UPDATE SCREEN TEXT
+  // =========================
+  updateDisplay() {
+    if (this.state === "asking") {
+      this.text.setText(this.currentText + (this.cursorVisible ? "_" : ""));
+    }
+
+    else if (this.state === "typingName") {
+      this.text.setText(
+        this.currentText +
+        "\n\nType your name:\n" +
+        this.playerName +
+        (this.cursorVisible ? "_" : "")
+      );
+    }
+  }
+
+  // =========================
+  // GREETING
+  // =========================
+  startGreeting() {
+    this.state = "greeting";
+
+    const message = `Hello ${this.playerName || "Player"}, hope you enjoy this game :)`;
+
+    this.text.setText('');
+    let i = 0;
+
+    this.time.addEvent({
+      delay: 50,
+      repeat: message.length - 1,
+      callback: () => {
+        this.text.text += message[i];
+        i++;
+
+        if (i === message.length) {
+          this.time.delayedCall(1200, () => {
+            this.scene.start('GameScreen');
+          });
+        }
+      }
+    });
+  }
+}
