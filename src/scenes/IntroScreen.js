@@ -51,19 +51,17 @@ export default class IntroScreen extends Phaser.Scene {
       }
     });
 
-    // =========================
-    // KEYBOARD INPUT
-    // =========================
-    this.input.keyboard.on('keydown', (event) => {
+    
+    this.input.keyboard.on('keydown', (event) => {                     //name input
       if (this.state !== "typingName") return;
 
-      // BACKSPACE
+      
       if (event.key === "Backspace") {
-        this.playerName = this.playerName.slice(0, -1);
+        this.playerName = this.playerName.slice(0, -1);           //backspace
       }
 
-      // ENTER → confirm
-      else if (event.key === "Enter") {
+     
+      else if (event.key === "Enter") {                            //enter
         this.startGreeting();
       }
 
@@ -71,13 +69,12 @@ export default class IntroScreen extends Phaser.Scene {
       else if (event.key.length === 1) {
         const char = event.key;
 
-        // 🧼 validation: letters only + limit
-        if (/^[a-zA-Z]$/.test(char) && this.playerName.length < this.maxLength) {
+        if (/^[a-zA-Z]$/.test(char) && this.playerName.length < this.maxLength) {         //letters only (made with calum in mind)
           this.playerName += char;
 
-          // 🔊 typing sound (optional asset needed)
-          if (this.sound.get('type')) {
-            this.sound.play('type', { volume: 0.2 });
+       
+          if (this.sound.get('type')) {                              
+            this.sound.play('type', { volume: 0.2 });                 //typing sound (add sound file at some point)
           }
 
           this.updateDisplay();
@@ -86,9 +83,7 @@ export default class IntroScreen extends Phaser.Scene {
     });
   }
 
-  // =========================
-  // UPDATE SCREEN TEXT
-  // =========================
+
   updateDisplay() {
     if (this.state === "asking") {
       this.text.setText(this.currentText + (this.cursorVisible ? "_" : ""));
@@ -96,7 +91,7 @@ export default class IntroScreen extends Phaser.Scene {
 
     else if (this.state === "typingName") {
       this.text.setText(
-        this.currentText +
+        this.currentText +                                           //letters showing up as u type
         "\n\nType your name:\n" +
         this.playerName +
         (this.cursorVisible ? "_" : "")
@@ -104,14 +99,12 @@ export default class IntroScreen extends Phaser.Scene {
     }
   }
 
-  // =========================
-  // GREETING
-  // =========================
+  
   startGreeting() {
     this.state = "greeting";
 
-    const message = `Hello ${this.playerName || "Player"}, hope you enjoy this game :)`;
-
+    const message = `Hello ${this.playerName || "Player"}, hope you enjoy this game :)`;     //say hi
+                                                                       
     this.text.setText('');
     let i = 0;
 
